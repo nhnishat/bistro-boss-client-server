@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.drawer-side a {
+	background-color: transparent;
+	margin-bottom: 8px;
+}
+.drawer-side a:active {
+	color: white;
+}
