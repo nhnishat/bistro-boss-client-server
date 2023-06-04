@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
@@ -24,26 +25,26 @@ const AuthProvider = ({ children }) => {
 		return createUserWithEmailAndPassword(auth, email, password);
 	};
 
-	useEffect(() => {
-		const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-			setUser(currentUser);
-			// Get and set token
-			// if (currentUser) {
-			// 	axios
-			// 		.post('http://localhost:5000/jwt', { email: currentUser.email })
-			// 		.then((data) => {
-			// 			console.log(data);
-			// 			console.log(data.data);
-			// 			localStorage.setItem('access-token', data.data);
-			// 		});
-			// } else {
-			// 	localStorage.removeItem('access-token');
-			// }
-			setLoading(false);
-			console.log('current user', currentUser);
-		});
-		return unSubscribe();
-	});
+	// useEffect(() => {
+	// 	const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
+	// 		setUser(currentUser);
+	// 		// Get and set token
+	// 		if (currentUser) {
+	// 			axios
+	// 				.post('http://localhost:5000/jwt', { email: currentUser.email })
+	// 				.then((data) => {
+	// 					console.log(data);
+	// 					console.log(data.data);
+	// 					localStorage.setItem('access-token', data.data);
+	// 				});
+	// 		} else {
+	// 			localStorage.removeItem('access-token');
+	// 		}
+	// 		setLoading(false);
+	// 		console.log('current user', currentUser);
+	// 	});
+	// 	return unSubscribe();
+	// });
 
 	const singInUser = (email, password) => {
 		setLoading(true);
@@ -64,6 +65,31 @@ const AuthProvider = ({ children }) => {
 		setLoading(true);
 		return signInWithPopup(auth, googleProvider);
 	};
+
+	useEffect(() => {
+		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+			setUser(currentUser);
+			console.log('current user', currentUser);
+
+			// get and set token
+			if (currentUser) {
+				axios
+					.post('http://localhost:5000/jwt', {
+						email: currentUser.email,
+					})
+					.then((data) => {
+						// console.log(data.data.token)
+						localStorage.setItem('access-token', data.data);
+						setLoading(false);
+					});
+			} else {
+				localStorage.removeItem('access-token');
+			}
+		});
+		return () => {
+			return unsubscribe();
+		};
+	}, []);
 
 	const authInfo = {
 		user,
